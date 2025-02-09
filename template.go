@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/kvalv/template-mvp/lex"
+	"github.com/kvalv/template-mvp/parser"
 	"github.com/kvalv/template-mvp/token"
 )
 
@@ -29,11 +30,11 @@ func (t *template) Parse(v any) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			expr, err := Parse(actionTokens)
+			expr, err := parser.Parse(actionTokens)
 			if err != nil {
 				return "", err
 			}
-			actionResult, err := Eval(expr, v)
+			actionResult, err := parser.Eval(expr, v)
 			if err != nil {
 				return "", err
 			}
