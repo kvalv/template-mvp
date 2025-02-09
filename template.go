@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kvalv/template-mvp/errors"
+	"github.com/kvalv/template-mvp/eval"
 	"github.com/kvalv/template-mvp/lex"
 	"github.com/kvalv/template-mvp/parser"
 	"github.com/kvalv/template-mvp/token"
@@ -34,7 +36,7 @@ func (t *template) Parse(v any) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			actionResult, err := parser.Eval(expr, v)
+			actionResult, err := eval.Eval(expr, v)
 			if err != nil {
 				return "", err
 			}
@@ -55,7 +57,7 @@ func (t *template) collectActionTokens() ([]token.Token, error) {
 		tk := t.lexer.Next()
 		switch tk.Ttype {
 		case token.EOF, token.ACTIONSTART, token.TEXT:
-			return nil, fmt.Errorf("%w: %q", ErrUnexpectedToken, tk.Ttype)
+			return nil, fmt.Errorf("%w: %q", errors.ErrUnexpectedToken, tk.Ttype)
 		case token.ACTIONEND:
 			return res, nil
 		}

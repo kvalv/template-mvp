@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github.com/kvalv/template-mvp/ast"
+	"github.com/kvalv/template-mvp/errors"
 	"github.com/kvalv/template-mvp/token"
 )
 
@@ -9,20 +10,26 @@ import (
 // 	tokens []token.Token
 // }
 
+type parser struct {
+	tokens []token.Token
+}
+
+func (p *parser) Parse() (ast.Expression, error) {
+	if len(p.tokens) == 0 {
+		return nil, errors.ErrNoTokens
+	}
+	if p.tokens[0].Ttype == token.DOT {
+		if len(p.tokens) != 2 {
+			return nil, errors.ErrUnexpectedToken
+		}
+		return ast.Field{
+			Name: p.tokens[1].Text,
+		}, nil
+	}
+	return nil, errors.ErrUnexpectedToken
+}
+
 func Parse(tokens []token.Token) (ast.Expression, error) {
-	return ast.Field{
-		Name: "Name",
-	}, nil
+	p := parser{tokens: tokens}
+	return p.Parse()
 }
-
-func Eval(expr *ast.Expression, v any) (string, error) {
-	return "World", nil
-}
-
-// func (e *Expression) Value() string {
-// 	return "World"
-// }
-
-// func (p *Parser) Parse(v any) (string, error) {
-// 	return "World", nil
-// }
