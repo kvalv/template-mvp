@@ -18,6 +18,7 @@ func (p *parser) Parse() (ast.Expression, error) {
 	if len(p.tokens) == 0 {
 		return nil, errors.ErrNoTokens
 	}
+	// TODO: pratt parsing; we do not support .Foo + 123
 	if p.tokens[0].Ttype == token.DOT {
 		if len(p.tokens) != 2 {
 			return nil, errors.ErrUnexpectedToken

@@ -30,6 +30,14 @@ func TestTemplate(t *testing.T) {
 			}{Two: "Two", Three: "Three"},
 			want: "One Two Three",
 		},
+		{
+			descr: "sum",
+			input: "{{.One + 2}}",
+			data: struct {
+				One int
+			}{One: 1},
+			want: "3",
+		},
 	}
 
 	for _, tc := range cases {
