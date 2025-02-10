@@ -13,4 +13,5 @@ var (
 	ErrUnexpectedToken = errors.New("unexpected token")
 	ErrNoTokens        = errors.New("no tokens")
 	ErrFieldNotFound   = errors.New("Field not found")
+	ErrNilData         = errors.New("data is nil")
 )
