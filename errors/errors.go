@@ -12,5 +12,5 @@ var (
 var (
 	ErrUnexpectedToken = errors.New("unexpected token")
 	ErrNoTokens        = errors.New("no tokens")
-	ErrFieldNotFound   = errors.New("Struct field not found")
+	ErrFieldNotFound   = errors.New("Field not found")
 )

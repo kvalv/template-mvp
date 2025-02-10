@@ -7,6 +7,7 @@ import (
 	"github.com/kvalv/template-mvp/errors"
 	"github.com/kvalv/template-mvp/eval"
 	"github.com/kvalv/template-mvp/lex"
+	"github.com/kvalv/template-mvp/object"
 	"github.com/kvalv/template-mvp/parser"
 	"github.com/kvalv/template-mvp/token"
 )
@@ -36,11 +37,11 @@ func (t *template) Parse(v any) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			actionResult, err := eval.Eval(expr, v)
-			if err != nil {
+			actionResult := eval.Eval(expr, v)
+			if err, ok := object.AsError(actionResult); ok {
 				return "", err
 			}
-			out.WriteString(actionResult)
+			fmt.Fprintf(out, "%s", actionResult)
 		case token.TEXT:
 			out.WriteString(tk.Text)
 		case token.EOF:

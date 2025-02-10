@@ -6,6 +6,7 @@ import (
 	"github.com/kvalv/template-mvp/ast"
 	"github.com/kvalv/template-mvp/errors"
 	"github.com/kvalv/template-mvp/eval"
+	"github.com/kvalv/template-mvp/object"
 )
 
 func TestFieldAccess(t *testing.T) {
@@ -29,6 +30,12 @@ func TestFieldAccess(t *testing.T) {
 			want:  "Bar",
 		},
 		{
+			descr: "private field",
+			input: ast.Field{Name: "lower"},
+			data:  struct{ lower int }{lower: 2},
+			want:  "2",
+		},
+		{
 			descr: "field not found",
 			input: ast.Field{Name: "Foo"},
 			data:  struct{}{},
@@ -38,23 +45,33 @@ func TestFieldAccess(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.descr, func(t *testing.T) {
-			got, err := eval.Eval(tc.input, tc.data)
+			obj := eval.Eval(tc.input, tc.data)
 			if tc.err != nil {
-				if err == nil {
-					t.Fatalf("expected error but got none (%q)", got)
-				}
-				if !errors.Is(err, tc.err) {
-					t.Fatalf("error mismatch; want=%q, got=%q", tc.err, err)
-				}
+				expectErrorObject(t, obj, tc.err)
 				return
 			}
-			if err != nil {
-				t.Fatalf("Eval error: %s", err)
-			}
-			if tc.want != got {
-				t.Fatalf("Result mismatch; want=%q, got=%q", tc.want, got)
+			expectNoErrorObject(t, obj)
+
+			if got := obj.String(); tc.want != got {
+				t.Fatalf("String mismatch; want=%q, got=%q", tc.want, got)
 			}
 		})
 	}
+}
 
+func expectErrorObject(t *testing.T, obj object.Object, wantErrIs error) {
+	t.Helper()
+	e, ok := obj.(*object.Error)
+	if !ok {
+		t.Fatalf("expected error object, got=%T", obj)
+	}
+	if !errors.Is(e, wantErrIs) {
+		t.Fatalf("error mismatch; want=%q, got=%q", wantErrIs, e)
+	}
+}
+func expectNoErrorObject(t *testing.T, obj object.Object) {
+	t.Helper()
+	if _, ok := obj.(*object.Error); ok {
+		t.Fatalf("unexpected error: %s", obj)
+	}
 }
