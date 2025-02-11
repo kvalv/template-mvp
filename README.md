@@ -12,9 +12,9 @@ cat := struct {
     Name:     "cat",
     LegCount: 4,
 }
+input := "A {{.Name}} has {{.LegCount}} legs - {{.LegCount - 2}} more than a human!"
 
-input := "A {{.Name}} has {{.LegCount }} legs - {{.LegCount - 2}} more than a human!"
-res, err := template.New(input, io.Discard).Parse(&cat)
+res, err := template.New(input).Execute(&cat)
 if err != nil {
     panic("oh no")
 }

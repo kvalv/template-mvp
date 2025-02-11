@@ -18,11 +18,24 @@ type template struct {
 	lexer   *lex.Lexer
 }
 
-func New(input string, logdest io.Writer) *template {
-	return &template{
-		logdest: logdest,
-		lexer:   lex.New(input, logdest),
+type Options func(*template)
+
+// where to write logs
+func LogDest(w io.Writer) Options {
+	return func(t *template) {
+		t.logdest = w
 	}
+}
+
+func New(input string, opts ...Options) *template {
+	t := &template{
+		logdest: io.Discard,
+	}
+	for _, opt := range opts {
+		opt(t)
+	}
+	t.lexer = lex.New(input, t.logdest)
+	return t
 }
 
 func (t *template) debugTokens(tks []token.Token) {
@@ -34,7 +47,7 @@ func (t *template) debugTokens(tks []token.Token) {
 	fmt.Fprintf(t.logdest, "debugTokens: %s\n", b.String())
 }
 
-func (t *template) Parse(v any) (string, error) {
+func (t *template) Execute(v any) (string, error) {
 	out := &strings.Builder{}
 
 	for {

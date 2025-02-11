@@ -43,8 +43,8 @@ func TestTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.descr, func(t *testing.T) {
-			templ := template.New(tc.input, os.Stderr)
-			got, err := templ.Parse(tc.data)
+			templ := template.New(tc.input, template.LogDest(os.Stderr))
+			got, err := templ.Execute(tc.data)
 			if err != nil {
 				t.Fatalf("Parse error: %s", err)
 			}
