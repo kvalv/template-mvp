@@ -2,8 +2,8 @@ package lex
 
 import (
 	"fmt"
+	"io"
 	"log"
-	"os"
 	"slices"
 
 	"github.com/kvalv/template-mvp/token"
@@ -25,8 +25,8 @@ type Lexer struct {
 	// textMode bool
 }
 
-func New(input string) *Lexer {
-	log := log.New(os.Stderr, "Lexer: ", 0)
+func New(input string, logdest io.Writer) *Lexer {
+	log := log.New(logdest, "Lexer: ", 0)
 	return &Lexer{
 		log: log,
 		inp: input,
@@ -85,6 +85,9 @@ func (l *Lexer) nextAction() token.Token {
 	case c == '+':
 		l.advance()
 		return token.Token{Ttype: token.PLUS, Text: "+"}
+	case c == '-':
+		l.advance()
+		return token.Token{Ttype: token.MINUS, Text: "-"}
 	case isLetter(c):
 		ident := l.takewhile(isLetter, false)
 		l.advance()

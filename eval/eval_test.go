@@ -19,25 +19,25 @@ func TestFieldAccess(t *testing.T) {
 	}{
 		{
 			descr: "struct pointer",
-			input: ast.Field{Name: "Foo"},
+			input: &ast.Field{Name: "Foo"},
 			data:  &struct{ Foo string }{Foo: "Bar"},
 			want:  "Bar",
 		},
 		{
 			descr: "struct value",
-			input: ast.Field{Name: "Foo"},
+			input: &ast.Field{Name: "Foo"},
 			data:  struct{ Foo string }{Foo: "Bar"},
 			want:  "Bar",
 		},
 		{
 			descr: "private field",
-			input: ast.Field{Name: "lower"},
+			input: &ast.Field{Name: "lower"},
 			data:  struct{ lower int }{lower: 2},
 			want:  "2",
 		},
 		{
 			descr: "field not found",
-			input: ast.Field{Name: "Foo"},
+			input: &ast.Field{Name: "Foo"},
 			data:  struct{}{},
 			err:   errors.ErrFieldNotFound,
 		},
@@ -68,15 +68,15 @@ func TestEvalField(t *testing.T) {
 	}{
 		{
 			descr: "number",
-			expr:  ast.Field{Name: "myfield"},
+			expr:  &ast.Field{Name: "myfield"},
 			data:  struct{ myfield int }{myfield: 42},
-			want:  ast.Number{Value: 42},
+			want:  &ast.Number{Value: 42},
 		},
 		{
 			descr: "string",
-			expr:  ast.Field{Name: "myfield"},
+			expr:  &ast.Field{Name: "myfield"},
 			data:  struct{ myfield string }{myfield: "wow"},
-			want:  ast.String{Value: "wow"},
+			want:  &ast.String{Value: "wow"},
 		},
 	}
 
@@ -103,31 +103,31 @@ func TestEvalInfixExpression(t *testing.T) {
 	}{
 		{
 			descr: "add numbers",
-			expr: ast.Infix{
-				Lhs: ast.Number{Value: 1},
-				Rhs: ast.Number{Value: 2},
+			expr: &ast.Infix{
+				Lhs: &ast.Number{Value: 1},
+				Rhs: &ast.Number{Value: 2},
 				Op:  "+",
 			},
-			want: ast.Number{Value: 3},
+			want: &ast.Number{Value: 3},
 		},
 		{
 			descr: "add strings",
-			expr: ast.Infix{
-				Lhs: ast.String{Value: "foo"},
-				Rhs: ast.String{Value: "bar"},
+			expr: &ast.Infix{
+				Lhs: &ast.String{Value: "foo"},
+				Rhs: &ast.String{Value: "bar"},
 				Op:  "+",
 			},
-			want: ast.String{Value: "foobar"},
+			want: &ast.String{Value: "foobar"},
 		},
 		{
 			descr: "number and field",
-			expr: ast.Infix{
-				Lhs: ast.Number{Value: 1},
-				Rhs: ast.Field{Name: "myfield"},
+			expr: &ast.Infix{
+				Lhs: &ast.Number{Value: 1},
+				Rhs: &ast.Field{Name: "myfield"},
 				Op:  "+",
 			},
 			data: struct{ myfield int }{myfield: 2},
-			want: ast.Number{Value: 3},
+			want: &ast.Number{Value: 3},
 		},
 	}
 

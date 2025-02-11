@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"os"
 	"testing"
 
 	"github.com/kvalv/template-mvp/ast"
@@ -16,25 +17,105 @@ func TestParser(t *testing.T) {
 		{
 			descr: "access field",
 			input: []token.Token{
-				{Ttype: token.DOT},
+				{Ttype: token.DOT, Text: "."},
 				{Ttype: token.IDENT, Text: "Name"},
 			},
-			want: ast.Field{
-				Name: "Name",
+			want: &ast.Prefix{
+				Op: ".",
+				Rhs: &ast.Field{
+					Name: "Name",
+				},
+			},
+		},
+		{
+			descr: "sum",
+			input: []token.Token{
+				{Ttype: token.DOT, Text: "."},
+				{Ttype: token.IDENT, Text: "foo"},
+				{Ttype: token.PLUS, Text: "+"},
+				{Ttype: token.NUMBER, Text: "2"},
+			},
+			want: &ast.Infix{
+				Lhs: &ast.Prefix{
+					Op: ".",
+					Rhs: &ast.Field{
+						Name: "foo",
+					},
+				},
+				Op:  "+",
+				Rhs: &ast.Number{Value: 2},
 			},
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.descr, func(t *testing.T) {
-			got, err := Parse(tc.input)
+			got, err := Parse(tc.input, os.Stderr)
 			if err != nil {
 				t.Fatalf("Parse error: %s", err)
 			}
-			if tc.want != got {
-				t.Fatalf("Result mismatch; want=%q, got=%q", tc.want, got)
-			}
+			t.Logf("want=%q got=%q", tc.want, got)
+			expectExpression(t, tc.want, got)
 		})
 	}
+}
 
+func expectExpression(t *testing.T, want, got ast.Expression) {
+	switch want := want.(type) {
+	case *ast.Prefix:
+		expectPrefix(t, want, got)
+	case *ast.Number:
+		expectNumber(t, want, got)
+	case *ast.Field:
+		expectField(t, want, got)
+	case *ast.Infix:
+		expectInfix(t, want, got)
+	default:
+		t.Fatalf("unexpected type: %T", want)
+	}
+}
+
+func expectPrefix(t *testing.T, want *ast.Prefix, got ast.Expression) {
+	t.Helper()
+	prefix, ok := got.(*ast.Prefix)
+	if !ok {
+		t.Fatalf("type mismatch; want=%T, got=%T", want, got)
+	}
+	if prefix.Op != want.Op {
+		t.Fatalf("op mismatch; want=%q, got=%q", want.Op, prefix.Op)
+	}
+	expectExpression(t, want.Rhs, prefix.Rhs)
+}
+
+func expectNumber(t *testing.T, want *ast.Number, got ast.Expression) {
+	t.Helper()
+	number, ok := got.(*ast.Number)
+	if !ok {
+		t.Fatalf("type mismatch; want=%T, got=%T", want, got)
+	}
+	if number.Value != want.Value {
+		t.Fatalf("value mismatch; want=%d, got=%d", want.Value, number.Value)
+	}
+}
+func expectField(t *testing.T, want *ast.Field, got ast.Expression) {
+	t.Helper()
+	field, ok := got.(*ast.Field)
+	if !ok {
+		t.Fatalf("type mismatch; want=%T, got=%T", want, got)
+	}
+	if field.Name != want.Name {
+		t.Fatalf("name mismatch; want=%q, got=%q", want.Name, field.Name)
+	}
+}
+func expectInfix(t *testing.T, want *ast.Infix, got ast.Expression) {
+	t.Helper()
+	infix, ok := got.(*ast.Infix)
+	if !ok {
+		t.Fatalf("type mismatch; want=%T, got=%T", want, got)
+	}
+	if infix.Op != want.Op {
+		t.Fatalf("op mismatch; want=%q, got=%q", want.Op, infix.Op)
+	}
+	expectExpression(t, want.Lhs, infix.Lhs)
+	expectExpression(t, want.Rhs, infix.Rhs)
 }

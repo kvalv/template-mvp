@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/kvalv/template-mvp/errors"
@@ -13,13 +14,24 @@ import (
 )
 
 type template struct {
-	lexer *lex.Lexer
+	logdest io.Writer
+	lexer   *lex.Lexer
 }
 
-func New(input string) *template {
+func New(input string, logdest io.Writer) *template {
 	return &template{
-		lexer: lex.New(input),
+		logdest: logdest,
+		lexer:   lex.New(input, logdest),
 	}
+}
+
+func (t *template) debugTokens(tks []token.Token) {
+	b := strings.Builder{}
+	for _, tk := range tks {
+		b.WriteString(string(tk.Ttype))
+		b.WriteString(" ")
+	}
+	fmt.Fprintf(t.logdest, "debugTokens: %s\n", b.String())
 }
 
 func (t *template) Parse(v any) (string, error) {
@@ -33,7 +45,8 @@ func (t *template) Parse(v any) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			expr, err := parser.Parse(actionTokens)
+			t.debugTokens(actionTokens)
+			expr, err := parser.Parse(actionTokens, t.logdest)
 			if err != nil {
 				return "", err
 			}

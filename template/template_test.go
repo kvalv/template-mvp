@@ -1,9 +1,10 @@
 package template_test
 
 import (
+	"os"
 	"testing"
 
-	"github.com/kvalv/template-mvp"
+	"github.com/kvalv/template-mvp/template"
 )
 
 func TestTemplate(t *testing.T) {
@@ -42,7 +43,7 @@ func TestTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.descr, func(t *testing.T) {
-			templ := template.New(tc.input)
+			templ := template.New(tc.input, os.Stderr)
 			got, err := templ.Parse(tc.data)
 			if err != nil {
 				t.Fatalf("Parse error: %s", err)

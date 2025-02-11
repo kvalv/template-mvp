@@ -10,20 +10,31 @@ import (
 
 func Eval(expr ast.Expression, data any) object.Object {
 	switch expr := expr.(type) {
-	case ast.Number:
+	case *ast.Number:
 		return &object.Number{Value: expr.Value}
-	case ast.String:
+	case *ast.String:
 		return &object.String{Value: expr.Value}
-	case ast.Field:
+	case *ast.Field:
 		return evalField(expr, data)
-	case ast.Infix:
+	case *ast.Infix:
 		return evalInfix(expr, data)
+	case *ast.Prefix:
+		return evalPrefix(expr, data)
 	default:
 		return object.Errorf("unsupported expression type %T", expr)
 	}
 }
 
-func evalInfix(expr ast.Infix, data any) object.Object {
+func evalPrefix(expr *ast.Prefix, data any) object.Object {
+	switch expr.Op {
+	case ".":
+		return evalField(expr.Rhs.(*ast.Field), data)
+	default:
+		return object.Errorf("unsupported prefix operator %s", expr.Op)
+	}
+}
+
+func evalInfix(expr *ast.Infix, data any) object.Object {
 	left := Eval(expr.Lhs, data)
 	right := Eval(expr.Rhs, data)
 
@@ -58,7 +69,7 @@ func evalStringInfix(op string, left, right *object.String) object.Object {
 	}
 }
 
-func evalField(expr ast.Field, data any) object.Object {
+func evalField(expr *ast.Field, data any) object.Object {
 	// we'll use reflection to access the field
 	var value reflect.Value
 	if v := reflect.ValueOf(data); v.Kind() == reflect.Pointer {

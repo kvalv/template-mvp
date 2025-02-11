@@ -12,6 +12,7 @@ const (
 	IDENT       TokenType = "IDENT"
 	NUMBER      TokenType = "NUMBER"
 	PLUS        TokenType = "PLUS"
+	MINUS       TokenType = "MINUS"
 )
 
 type Token struct {

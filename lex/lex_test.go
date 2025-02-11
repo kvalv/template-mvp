@@ -1,6 +1,7 @@
 package lex_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/kvalv/template-mvp/lex"
@@ -57,7 +58,7 @@ func TestLexer(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.descr, func(t *testing.T) {
-			lexer := lex.New(tc.input)
+			lexer := lex.New(tc.input, os.Stderr)
 			for _, tk := range tc.want {
 				got := lexer.Next()
 				expectTokenMatch(t, got, tk)
