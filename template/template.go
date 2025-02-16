@@ -15,7 +15,7 @@ import (
 
 type template struct {
 	logdest io.Writer
-	lexer   *lex.Lexer
+	lexer   lex.Lexer
 }
 
 type Options func(*template)
@@ -50,30 +50,19 @@ func (t *template) debugTokens(tks []token.Token) {
 func (t *template) Execute(v any) (string, error) {
 	out := &strings.Builder{}
 
-	for {
-		tk := t.lexer.Next()
-		switch tk.Ttype {
-		case token.ACTIONSTART:
-			actionTokens, err := t.collectActionTokens()
-			if err != nil {
-				return "", err
-			}
-			t.debugTokens(actionTokens)
-			expr, err := parser.Parse(actionTokens, t.logdest)
-			if err != nil {
-				return "", err
-			}
-			actionResult := eval.Eval(expr, v)
-			if err, ok := object.AsError(actionResult); ok {
-				return "", err
-			}
-			fmt.Fprintf(out, "%s", actionResult)
-		case token.TEXT:
-			out.WriteString(tk.Text)
-		case token.EOF:
-			return out.String(), nil
-		}
+	parser := parser.New(t.lexer, t.logdest)
+	prog, err := parser.Parse()
+	if err != nil {
+		return "", err
 	}
+	for _, expr := range prog.Exprs {
+		obj := eval.Eval(expr, v)
+		if err, ok := object.AsError(obj); ok {
+			return "", err
+		}
+		fmt.Fprintf(out, "%s", obj)
+	}
+	return out.String(), nil
 }
 
 // Consumes tokens until it finds }}, which marks the end of an action section.

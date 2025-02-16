@@ -26,6 +26,7 @@ type (
 	Number  struct{ Value int }
 	Error   struct{ err error }
 	Boolean struct{ Value bool }
+	Void    struct{}
 )
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
@@ -36,6 +37,9 @@ func (n *Number) String() string   { return fmt.Sprintf("%d", n.Value) }
 
 func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
 func (b *Boolean) String() string   { return fmt.Sprintf("%t", b.Value) }
+
+func (v *Void) Type() ObjectType { return "VOID" }
+func (v *Void) String() string   { return "" }
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) String() string   { return e.err.Error() }

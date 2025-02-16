@@ -9,12 +9,17 @@ import (
 	"github.com/kvalv/template-mvp/token"
 )
 
+type Lexer interface {
+	Next() token.Token
+}
+
 type Mode int
 
 var keywords = map[string]token.TokenType{
-	"if":   token.IF,
-	"end":  token.END,
-	"true": token.TRUE,
+	"if":    token.IF,
+	"end":   token.END,
+	"true":  token.TRUE,
+	"false": token.FALSE,
 }
 
 const (
@@ -22,7 +27,7 @@ const (
 	ModeAction
 )
 
-type Lexer struct {
+type lexer struct {
 	log *log.Logger
 	inp string
 	pos int
@@ -31,14 +36,14 @@ type Lexer struct {
 	// textMode bool
 }
 
-func New(input string, logdest io.Writer) *Lexer {
+func New(input string, logdest io.Writer) *lexer {
 	log := log.New(logdest, "Lexer: ", 0)
-	return &Lexer{
+	return &lexer{
 		log: log,
 		inp: input,
 	}
 }
-func (l *Lexer) curr() byte {
+func (l *lexer) curr() byte {
 	if l.pos >= len(l.inp) {
 		return 0
 	}
@@ -46,7 +51,7 @@ func (l *Lexer) curr() byte {
 }
 
 // retrieves the next token when the Lexer is in text mode
-func (l *Lexer) nextText() token.Token {
+func (l *lexer) nextText() token.Token {
 	l.log.Printf("Next(): curr=%q, peek=%q", l.curr(), l.peekNext())
 
 	// Should we leave text mode?
@@ -73,7 +78,7 @@ func (l *Lexer) nextText() token.Token {
 }
 
 // retrieves the next token when the Lexer is in action mode
-func (l *Lexer) nextAction() token.Token {
+func (l *lexer) nextAction() token.Token {
 	l.skipWhitespace()
 
 	c := l.curr()
@@ -110,7 +115,7 @@ func (l *Lexer) nextAction() token.Token {
 	}
 }
 
-func (l *Lexer) Next() token.Token {
+func (l *lexer) Next() token.Token {
 	l.log.Printf("Next(): curr=%q", l.curr())
 
 	if l.mode == ModeText {
@@ -119,7 +124,7 @@ func (l *Lexer) Next() token.Token {
 	return l.nextAction()
 }
 
-func (l *Lexer) takewhile(pred func(b byte) bool, consume bool) string {
+func (l *lexer) takewhile(pred func(b byte) bool, consume bool) string {
 	// starts at current, stops at the end
 	if !pred(l.curr()) {
 		return ""
@@ -151,30 +156,30 @@ func isWhitespace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n' || b == '\r'
 }
 
-func (l *Lexer) skipWhitespace() {
+func (l *lexer) skipWhitespace() {
 	for isWhitespace(l.curr()) {
 		l.advance()
 	}
 }
 
-func (l *Lexer) peekNext() byte {
+func (l *lexer) peekNext() byte {
 	if l.pos+1 >= len(l.inp) {
 		return 0
 	}
 	return l.inp[l.pos+1]
 }
-func (l *Lexer) advance() {
+func (l *lexer) advance() {
 	l.pos++
 }
-func (l *Lexer) slice(start, length int) string {
+func (l *lexer) slice(start, length int) string {
 	return l.inp[l.pos+start : l.pos+start+length]
 }
 
-func (l *Lexer) eof() token.Token {
+func (l *lexer) eof() token.Token {
 	return token.Token{Ttype: token.EOF, Text: ""}
 }
 
-func (l *Lexer) errorf(format string, a ...any) token.Token {
+func (l *lexer) errorf(format string, a ...any) token.Token {
 	l.log.Printf("Lexer.errorf: %s", fmt.Sprintf(format, a...))
 	return token.Token{Ttype: token.ERROR, Text: ""}
 }

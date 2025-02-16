@@ -16,6 +16,7 @@ const (
 	IF          TokenType = "IF"
 	END         TokenType = "END"
 	TRUE        TokenType = "TRUE"
+	FALSE       TokenType = "FALSE"
 )
 
 type Token struct {

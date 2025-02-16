@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/kvalv/template-mvp/ast"
@@ -20,6 +21,17 @@ func Eval(expr ast.Expression, data any) object.Object {
 		return evalInfix(expr, data)
 	case *ast.Prefix:
 		return evalPrefix(expr, data)
+	case *ast.Cond:
+		return evalCond(expr, data)
+	case *ast.Boolean:
+		if expr.Value {
+			return object.TRUE
+		}
+		return object.FALSE
+	case *ast.Action:
+		return Eval(expr.Body, data)
+	case *ast.Text:
+		return &object.String{Value: expr.Text}
 	default:
 		return object.Errorf("unsupported expression type %T", expr)
 	}
@@ -100,4 +112,14 @@ func evalField(expr *ast.Field, data any) object.Object {
 	default:
 		return object.Errorf("unsupported type %s", structValue.Kind())
 	}
+}
+func evalCond(expr *ast.Cond, data any) object.Object {
+	cond := Eval(expr.If, data)
+	if cond.Type() != object.BOOLEAN_OBJ {
+		return object.Errorf("evalCond: condition is not a boolean: %v (%s)", cond.Type(), cond.String())
+	}
+	if cond.(*object.Boolean) == object.TRUE {
+		return Eval(expr.Body, data)
+	}
+	return &object.Void{}
 }

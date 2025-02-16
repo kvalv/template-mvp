@@ -39,6 +39,26 @@ func TestTemplate(t *testing.T) {
 			}{One: 1},
 			want: "3",
 		},
+		{
+			descr: "cond/true",
+			input: "{{if true}}hi{{end}}",
+			want:  "hi",
+			data:  nil,
+		},
+		{
+			descr: "cond/false",
+			input: "{{if false}}hi{{end}}",
+			want:  "",
+			data:  nil,
+		},
+		{
+			descr: "cond/variable",
+			input: "{{if true}}{{.Wow}}{{end}}",
+			want:  "Wow",
+			data: struct {
+				Wow string
+			}{Wow: "Wow"},
+		},
 	}
 
 	for _, tc := range cases {
