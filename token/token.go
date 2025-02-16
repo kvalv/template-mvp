@@ -13,6 +13,9 @@ const (
 	NUMBER      TokenType = "NUMBER"
 	PLUS        TokenType = "PLUS"
 	MINUS       TokenType = "MINUS"
+	IF          TokenType = "IF"
+	END         TokenType = "END"
+	TRUE        TokenType = "TRUE"
 )
 
 type Token struct {

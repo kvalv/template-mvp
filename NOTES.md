@@ -1,5 +1,10 @@
-[x] Access a field
-[ ] Provided what field to extract, extract it from the input struct
-[ ] Replace .Something with string value
-[ ] Return error if the input struct does not have the value
 
+# TODO
+- `{{ if 1 }} yay {{end}}`
+- Parse if statement 
+- Parser receives text as an ast
+- 
+
+# TODONE
+- if token, end token
+- Value evaluates to boolean

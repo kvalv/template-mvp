@@ -26,6 +26,11 @@ type (
 		Name string
 	}
 
+	Cond struct {
+		If   Expression
+		Body Expression
+	}
+
 	Prefix struct {
 		token.Token
 		Op  string

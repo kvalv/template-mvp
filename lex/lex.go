@@ -11,6 +11,12 @@ import (
 
 type Mode int
 
+var keywords = map[string]token.TokenType{
+	"if":   token.IF,
+	"end":  token.END,
+	"true": token.TRUE,
+}
+
 const (
 	ModeText Mode = iota
 	ModeAction
@@ -91,6 +97,9 @@ func (l *Lexer) nextAction() token.Token {
 	case isLetter(c):
 		ident := l.takewhile(isLetter, false)
 		l.advance()
+		if ttype, ok := keywords[ident]; ok {
+			return token.Token{Ttype: ttype, Text: ident}
+		}
 		return token.Token{Ttype: token.IDENT, Text: ident}
 	case isDigit(c):
 		num := l.takewhile(isDigit, false)

@@ -54,6 +54,21 @@ func TestLexer(t *testing.T) {
 				{Ttype: token.ACTIONEND, Text: "}}"},
 			},
 		},
+		{
+			descr: "if block",
+			input: "{{if true}}Hello{{end}}",
+			want: []token.Token{
+				{Ttype: token.ACTIONSTART, Text: "{{"},
+				{Ttype: token.IF, Text: "if"},
+				{Ttype: token.TRUE, Text: "true"},
+				{Ttype: token.ACTIONEND, Text: "}}"},
+				{Ttype: token.TEXT, Text: "Hello"},
+				{Ttype: token.ACTIONSTART, Text: "{{"},
+				{Ttype: token.END, Text: "end"},
+				{Ttype: token.ACTIONEND, Text: "}}"},
+				{Ttype: token.EOF, Text: ""},
+			},
+		},
 	}
 
 	for _, tc := range cases {
