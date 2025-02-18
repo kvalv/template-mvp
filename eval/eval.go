@@ -1,7 +1,6 @@
 package eval
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/kvalv/template-mvp/ast"
@@ -67,6 +66,12 @@ func evalNumberInfix(op string, left, right *object.Number) object.Object {
 		return &object.Number{Value: left.Value + right.Value}
 	case "-":
 		return &object.Number{Value: left.Value - right.Value}
+	case ">":
+		return object.FromGoBool(left.Value > right.Value)
+	case "<":
+		return object.FromGoBool(left.Value < right.Value)
+	case "==":
+		return object.FromGoBool(left.Value == right.Value)
 	default:
 		return object.Errorf("unsupported operator %s", op)
 	}
@@ -115,10 +120,10 @@ func evalField(expr *ast.Field, data any) object.Object {
 }
 func evalCond(expr *ast.Cond, data any) object.Object {
 	cond := Eval(expr.If, data)
-	if cond.Type() != object.BOOLEAN_OBJ {
-		return object.Errorf("evalCond: condition is not a boolean: %v (%s)", cond.Type(), cond.String())
+	if _, ok := object.AsError(cond); ok {
+		return cond
 	}
-	if cond.(*object.Boolean) == object.TRUE {
+	if cond.Bool() {
 		return Eval(expr.Body, data)
 	}
 	return &object.Void{}

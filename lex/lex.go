@@ -90,6 +90,16 @@ func (l *lexer) nextAction() token.Token {
 		l.advance()
 		l.mode = ModeText
 		return token.Token{Ttype: token.ACTIONEND, Text: "}}"}
+	case c == '>':
+		l.advance()
+		return token.Token{Ttype: token.GT, Text: ">"}
+	case c == '<':
+		l.advance()
+		return token.Token{Ttype: token.LT, Text: "<"}
+	case c == '=' && l.peekNext() == '=':
+		l.advance()
+		l.advance()
+		return token.Token{Ttype: token.EQ, Text: "=="}
 	case c == '.':
 		l.advance()
 		return token.Token{Ttype: token.DOT, Text: "."}

@@ -42,8 +42,9 @@ func New(lex lex.Lexer, logdest io.Writer) *parser {
 	p.prefixFns[token.TRUE] = p.parseBoolean
 	p.prefixFns[token.FALSE] = p.parseBoolean
 
-	p.infixFns[token.PLUS] = p.parseInfixExpression
-	p.infixFns[token.MINUS] = p.parseInfixExpression
+	for _, tk := range []token.TokenType{token.PLUS, token.MINUS, token.GT, token.LT, token.EQ} {
+		p.infixFns[tk] = p.parseInfixExpression
+	}
 
 	p.advance()
 	p.advance()
@@ -215,6 +216,8 @@ func (p *parser) Parse() (prog *ast.Program, err error) {
 		r := recover()
 		if e, ok := r.(error); ok {
 			err = e
+		} else if r != nil {
+			err = fmt.Errorf("%v", r)
 		}
 	}()
 

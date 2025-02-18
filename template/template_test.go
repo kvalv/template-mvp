@@ -59,6 +59,46 @@ func TestTemplate(t *testing.T) {
 				Wow string
 			}{Wow: "Wow"},
 		},
+		{
+			descr: "cond/expr/true",
+			input: "{{if 2 > 1}}{{.Wow}}{{end}}",
+			want:  "Wow",
+			data: struct {
+				Wow string
+			}{Wow: "Wow"},
+		},
+		{
+			descr: "cond/expr/false",
+			input: "{{if 2 < 1}}{{.Wow}}{{end}}",
+			want:  "",
+			data: struct {
+				Wow string
+			}{Wow: "Wow"},
+		},
+		{
+			descr: "cond/truthy/true",
+			input: "{{if 2}}{{.Wow}}{{end}}",
+			want:  "Wow",
+			data: struct {
+				Wow string
+			}{Wow: "Wow"},
+		},
+		{
+			descr: "cond/truthy/false",
+			input: "{{if 0}}{{.Wow}}{{end}}",
+			want:  "",
+			data: struct {
+				Wow string
+			}{Wow: "Wow"},
+		},
+		{
+			descr: "cond/truthy/field",
+			input: "{{if .field}}X{{end}}",
+			want:  "",
+			data: struct {
+				field int
+			}{field: 0},
+		},
 	}
 
 	for _, tc := range cases {

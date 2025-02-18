@@ -76,6 +76,21 @@ func TestParser(t *testing.T) {
 					},
 				}},
 		},
+		{
+			descr: "greater than",
+			input: lex.New("{{1 > 2}}", os.Stderr),
+			want: &ast.Action{
+				Body: &ast.Infix{
+					Lhs: &ast.Number{
+						Value: 1,
+					},
+					Op: ">",
+					Rhs: &ast.Number{
+						Value: 2,
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {

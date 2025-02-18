@@ -16,7 +16,7 @@ func tokenPrecedence(ttype token.TokenType) (p int) {
 	switch ttype {
 	case token.DOT:
 		return PrecedencePrefix
-	case token.PLUS, token.MINUS:
+	case token.PLUS, token.MINUS, token.GT, token.LT, token.EQ:
 		return PrecedencePlus
 	default:
 		return PrecedenceLowest

@@ -17,6 +17,9 @@ const (
 	END         TokenType = "END"
 	TRUE        TokenType = "TRUE"
 	FALSE       TokenType = "FALSE"
+	GT          TokenType = ">"
+	LT          TokenType = "<"
+	EQ          TokenType = "=="
 )
 
 type Token struct {
