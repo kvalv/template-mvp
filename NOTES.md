@@ -1,12 +1,11 @@
 
 # TODO
 - `{{ range <pipeline> }} <block> {{ end }}`
+- range token
+- range ast
+- evaluate the range pipeline
+- A context type? Let's us get child contexts that we can reuse
+- subcontexts (`.Foo` -> `.` becomes `.Foo`)
+
 
 # TODONE
-- Parser receives text as an ast
-- `{{ if 1 }} yay {{end}}`
-- Parse if statement 
-- if token, end token
-- Value evaluates to boolean
-- `3 > 2`
-- Truthy statements?

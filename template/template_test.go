@@ -13,6 +13,7 @@ func TestTemplate(t *testing.T) {
 		input string
 		data  any
 		want  string
+		skip  bool
 	}{
 		{
 			descr: "simple",
@@ -99,9 +100,41 @@ func TestTemplate(t *testing.T) {
 				field int
 			}{field: 0},
 		},
+		{
+			descr: "nested",
+			input: "{{if 2 > 1}}{{if 1 > 0}}hi{{end}}{{end}}",
+			want:  "hi",
+		},
+		{
+			descr: "dot",
+			input: "{{.}}",
+			data:  "Hello",
+			want:  "Hello",
+		},
+		{
+			descr: "range",
+			input: "{{range .Slice}}Name: {{.Name}} - {{end}}",
+			data: struct {
+				Slice []struct {
+					Name string
+				}
+			}{
+				Slice: []struct {
+					Name string
+				}{
+					{Name: "Alice"},
+					{Name: "Bob"},
+				},
+			},
+			skip: true,
+			want: "Name: Alice - Name: Bob - ",
+		},
 	}
 
 	for _, tc := range cases {
+		if tc.skip {
+			t.Skip(tc.descr)
+		}
 		t.Run(tc.descr, func(t *testing.T) {
 			templ := template.New(tc.input, template.LogDest(os.Stderr))
 			got, err := templ.Execute(tc.data)

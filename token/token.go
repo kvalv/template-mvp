@@ -20,6 +20,7 @@ const (
 	GT          TokenType = ">"
 	LT          TokenType = "<"
 	EQ          TokenType = "=="
+	RANGE       TokenType = "RANGE"
 )
 
 type Token struct {
